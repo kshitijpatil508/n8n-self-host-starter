@@ -33,6 +33,28 @@ Before you start:
    ```
    curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
    ```
+---
+
+## 🆓 Use a Free Domain with DuckDNS (No Payment Needed)
+
+You don’t need to buy a domain to use this starter kit.  
+You can get a **completely free domain** from DuckDNS in under 1 minute.
+
+### How to Get a Free DuckDNS Domain
+
+1. Go to **https://www.duckdns.org**  
+2. Sign in using GitHub / Google / Reddit  
+3. Choose a name → click **Add Domain**  
+4. Enter your server’s public IP in the “IP” field  
+5. Click **Update IP** — and you're done 🎉
+
+Your free domain will look like: **yourname.duckdns.org**
+
+Set it in your `.env`:
+```bash
+DOMAIN_NAME=example.duckdns.org
+```
+Caddy will automatically generate HTTPS for it.
 
 ---
 
