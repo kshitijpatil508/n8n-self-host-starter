@@ -5,158 +5,173 @@
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Caddy](https://img.shields.io/badge/Caddy-00ADD8?style=for-the-badge&logo=caddy&logoColor=white)
 
-**A production-ready, secure, and extremely simple boilerplate for self-hosting n8n with HTTPS + PostgreSQL + pgvector. Just edit your `.env` and run one command.**
+**A fast, production-ready starter to self-host n8n with HTTPS, PostgreSQL (+pgvector ready), and a secure defaults-first setup.**
 
 ---
 
 ## 📖 Overview
 
-This template gives you a fully automated production deployment of **n8n** using:
-
-- **Caddy** for automatic HTTPS (zero config, no file editing)
-- **PostgreSQL + pgvector** for AI-ready workflows
-- **Docker Compose** for portability and easy updates
-
-Everything is pre‑configured in `docker-compose.yml`.  
-**No need to edit Caddyfile** — HTTPS is handled automatically through the Caddy command inside the compose file.
+This repo gives you a minimal, repeatable way to run **n8n** in production using Docker Compose, automatic HTTPS via Caddy, and PostgreSQL (pgvector-ready).  
+The goal: **clone → edit three values in `.env` → run one command → done**.
 
 ---
 
 ## ✅ Prerequisites
 
-Before you start:
-
-1. A VPS (AWS EC2, DigitalOcean, Hetzner, Hostinger VPS)
-2. A domain pointing to your server's IP
-3. Docker + Docker Compose installed  
-   Install Docker:
-   ```
-   curl -fsSL https://get.docker.com -o get-docker.sh && sh get-docker.sh
-   ```
----
-
-## 🆓 Use a Free Domain with DuckDNS (No Payment Needed)
-
-You don’t need to buy a domain to use this starter kit.  
-You can get a **completely free domain** from DuckDNS in under 1 minute.
-
-### How to Get a Free DuckDNS Domain
-
-1. Go to **https://www.duckdns.org**  
-2. Sign in using GitHub / Google / Reddit  
-3. Choose a name → click **Add Domain**  
-4. Enter your server’s public IP in the “IP” field  
-5. Click **Update IP** — and you're done 🎉
-
-Your free domain will look like: **yourname.duckdns.org**
-
-Set it in your `.env`:
-```bash
-DOMAIN_NAME=example.duckdns.org
-```
-Caddy will automatically generate HTTPS for it.
+1. A VPS (AWS EC2, DigitalOcean, Hetzner, Hostinger VPS, etc.)
+2. A domain (DuckDNS is fine) pointing to your server public IP.
+3. **Inbound firewall rules (VERY important):**
+   - **80/tcp** → Required for HTTP + Let’s Encrypt challenge  
+   - **443/tcp** → Required for HTTPS  
+   - **22/tcp** → SSH access  
+4. Docker & Docker Compose installed.
 
 ---
 
-## 🛠️ Deployment Guide (Only 1 File to Edit)
+## 🛠️ Quick Deployment
 
-### 1. Clone the Repository
+### 1. Clone the repo
 ```bash
 git clone https://github.com/kshitijpatil508/n8n-self-host-starter.git
 cd n8n-self-host-starter
 ```
 
-### 2. Edit the `.env` File (VERY IMPORTANT)
-You already have `.env` included in the repo — just edit it:
+### 2. Edit the `.env` file (ONLY 3 required fields)
 
+Open `.env`:
 ```bash
 nano .env
 ```
 
-### Required values to update:
-
-| Variable | Why It's Important |
-|---------|---------------------|
-| `DOMAIN_NAME` | Your n8n domain (required for HTTPS) |
-| `SSL_EMAIL` | Email for Let's Encrypt |
-| `N8N_ENCRYPTION_KEY` | **CRITICAL — MUST be set before first run** |
-| `POSTGRES_PASSWORD` | Secure DB password |
+Update ONLY these:
+```bash
+DOMAIN_NAME=example.duckdns.org
+N8N_ENCRYPTION_KEY=your_secret_encryption_key_here
+POSTGRES_PASSWORD=supersecurepassword
+```
 
 ---
 
-## 🔐 ⚠️ About the Encryption Key (MUST READ)
+## 🐳 Install Docker (manual or automatic)
 
-Your `N8N_ENCRYPTION_KEY` secures **all your credentials** inside n8n.
+### **Manual Docker installation**
+```bash
+bash <(curl -fsSL https://get.docker.com)
+sudo systemctl enable docker
+sudo systemctl start docker
+```
 
-### ✔️ Rules:
-- **MUST be set before running n8n for the first time**
-- **Store a backup somewhere safe** (password manager, notes vault, etc.)
-- Losing this key means losing access to all encrypted credentials forever
+### Add your user to docker group:
+```bash
+sudo usermod -aG docker $USER
+newgrp docker
+```
 
-### ❗ If You Forgot to Set the Key Before First Run:
-If you accidentally started n8n without setting the key:
+### Test Docker:
+```bash
+docker run --rm hello-world
+docker compose version
+```
 
-Run this command to recover the auto‑generated key:
+If both work, you're good.
+
+---
+
+### ⭐ OR — Use the included installer script (recommended)
+
+Instead of doing everything manually, just run:
+
+```bash
+sudo ./install_docker_minimal.sh
+```
+
+This script automatically:
+
+- ✅ Installs Docker  
+- ✅ Starts & enables the service  
+- ✅ Adds your user to docker group  
+- ✅ Verifies Docker & Compose installation  
+- ✅ Runs `hello-world` test  
+- ✅ Fixes permission issues if needed  
+
+No need to configure anything — just run it.
+
+---
+
+## 🔐 Encryption Key (MUST READ)
+
+`N8N_ENCRYPTION_KEY` encrypts all credentials inside n8n.
+
+- Must be set **before first run**  
+- Back it up somewhere safe  
+- Losing it = losing encrypted credentials
+
+### Recover the auto-generated key (if you forgot to set it)
+
+Run this **inside the folder containing your `docker-compose.yml`:**
 
 ```bash
 docker exec $(docker compose ps -q n8n) grep encryptionKey /home/node/.n8n/config
 ```
 
-**SAVE IT IMMEDIATELY**, then put it inside `.env`.
+Copy the value → update `.env` → restart.
 
 ---
 
-## 🚀 Start the Stack
+## 🚀 Start Your n8n Instance
 
 ```bash
 docker compose up -d
 ```
 
-That’s it.
-
-Caddy will automatically:
-- Request HTTPS certificates
-- Enable SSL
-- Reverse‑proxy n8n securely
-
-Your instance will be available at:
+Then access:
 
 ```
-https://<your DOMAIN_NAME>
+https://<YOUR_DOMAIN_NAME>
 ```
+
+Caddy will automatically issue certificates and handle HTTPS.
 
 ---
 
-## ⚙️ Configuration Variables Summary
+## ⚙️ Configuration Summary
 
-| Variable | Description | Example |
-|---------|-------------|---------|
-| `DOMAIN_NAME` | Domain for your n8n instance | `n8n.example.com` |
-| `SSL_EMAIL` | Email for SSL certificate | `admin@example.com` |
-| `GENERIC_TIMEZONE` | Server timezone | `Asia/Kolkata` |
-| `N8N_ENCRYPTION_KEY` | **Critical security key** | random string |
-| `POSTGRES_USER` | Database user | `n8n` |
-| `POSTGRES_PASSWORD` | Strong DB password | `change_me` |
-| `POSTGRES_DB` | DB name | `n8n` |
+| Variable | Required | Description |
+|---------|----------|-------------|
+| `DOMAIN_NAME` | ✅ | Your domain |
+| `N8N_ENCRYPTION_KEY` | ✅ | Critical encryption key |
+| `POSTGRES_PASSWORD` | ✅ | DB password |
+| `GENERIC_TIMEZONE` | optional | Default timezone |
 
 ---
 
-## 🛡️ Maintenance & Updates
+## 🛡️ Maintenance
 
-### Update n8n:
+**Update n8n:**
 ```bash
 docker compose pull
 docker compose up -d
 ```
 
-### Backup volumes:
+**Backup volumes:**
 - `n8n_data`
 - `postgres_data`
 
-Use snapshots or manual volume backups.
+---
+
+## 🆓 Free Domain (DuckDNS)
+
+Use a free DuckDNS subdomain instead of buying a domain:
+
+1. Visit https://duckdns.org  
+2. Sign in (GitHub/Google/Reddit)  
+3. Add a subdomain → set your public IP  
+4. Use it as `DOMAIN_NAME` in `.env`
+
+Works perfectly with Caddy + HTTPS.
 
 ---
 
-### 🤝 Contributing
+## 🤝 Contributing
+PRs welcome!
 
-Found a bug or want to improve the stack? PRs are welcome!
