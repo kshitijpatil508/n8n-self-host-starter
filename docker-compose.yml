@@ -1,70 +1,58 @@
-version: '3.7'
+version: '3.8'
 
 services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - SSL_EMAIL=${SSL_EMAIL}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    # This magic command sets up HTTPS for your domain automatically
+    command: caddy reverse-proxy --from https://${DOMAIN_NAME} --to http://n8n:5678
+
   n8n:
     image: n8nio/n8n:latest
-    restart: always
-    # IMPORTANT: Do NOT expose n8n port (5678) directly to the outside.
-    # Traffic flows securely through Caddy.
-    # ports:
-    #   - "127.0.0.1:5678:5678" 
-    
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678" # Only accessible from localhost (secure)
     environment:
-      # === CRITICAL N8N URLS (MUST BE SET TO YOUR DOMAIN) ===
-      - N8N_HOST=your.domain.com
+      - N8N_HOST=${DOMAIN_NAME}
+      - N8N_PORT=5678
       - N8N_PROTOCOL=https
-      - WEBHOOK_URL=https://your.domain.com/
-      - VUE_APP_URL_BASE_API=https://your.domain.com/
-
-      # === DATABASE CONFIGURATION (CONNECTS TO POSTGRES SERVICE) ===
-      - DB_TYPE=postgres
-      - DB_HOST=postgres # The Docker service name
-      - DB_USER=USERNAME # Match postgres service USERNAME
-      - DB_PASSWORD=YOUR_PASSWORD # Match postgres service YOUR_PASSWORD
-      - DB_DATABASE=db_name # Match postgres service db_name
-
-      # === Timezone for Schedules ===
-      - GENERIC_TIMEZONE=Asia/Kolkata # Recommended to keep this.
-
-      # === Google OAuth Configuration (Optional, but recommended) ===
-      - N8N_GENERIC_AUTH_TYPE=google
-      - N8N_GENERIC_AUTH_GOOGLE_CLIENT_ID=
-      - N8N_GENERIC_AUTH_GOOGLE_CLIENT_SECRET=
-      - N8N_GENERIC_AUTH_GOOGLE_OAUTH_CALLBACK_URL=https://your.domain.com/oauth/callback/google
-
+      - WEBHOOK_URL=https://${DOMAIN_NAME}/
+      - GENERIC_TIMEZONE=${GENERIC_TIMEZONE}
+      
+      # Security & DB Connection
+      - N8N_ENCRYPTION_KEY=${N8N_ENCRYPTION_KEY}
+      - DB_TYPE=postgresdb
+      - DB_POSTGRESDB_HOST=postgres
+      - DB_POSTGRESDB_PORT=5432
+      - DB_POSTGRESDB_DATABASE=${POSTGRES_DB}
+      - DB_POSTGRESDB_USER=${POSTGRES_USER}
+      - DB_POSTGRESDB_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
       - n8n_data:/home/node/.n8n
     depends_on:
       - postgres
 
-
   postgres:
     image: pgvector/pgvector:pg16
-    restart: always
+    restart: unless-stopped
     environment:
-      - POSTGRES_USER=USERNAME # IMPORTANT: CHOOSE SECURE VALUE
-      - POSTGRES_PASSWORD=YOUR_PASSWORD # IMPORTANT: CHOOSE SECURE VALUE
-      - POSTGRES_DB=db_name # IMPORTANT: CHOOSE SECURE VALUE
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    # No ports exposed for maximum security
-
-  caddy:
-    image: caddy:2
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
-      - caddy_config:/config
-    # Caddy depends on n8n to start before it can proxy traffic
-    depends_on:
-      - n8n
 
 volumes:
-  n8n_data:
-  postgres_data:
   caddy_data:
   caddy_config:
+  n8n_data:
+  postgres_data:
