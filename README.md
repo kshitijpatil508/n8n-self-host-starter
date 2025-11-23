@@ -1,18 +1,26 @@
-# n8n Self-Host Starter Kit 🚀
+# n8n Production-Ready Self-Hosting Kit 🚀
 
 ![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 ![n8n](https://img.shields.io/badge/n8n-FF6D5A?style=for-the-badge&logo=n8n&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Caddy](https://img.shields.io/badge/Caddy-00ADD8?style=for-the-badge&logo=caddy&logoColor=white)
 
-**A fast, production-ready starter to self-host n8n with HTTPS, PostgreSQL (+pgvector ready), and a secure defaults-first setup.**
+The simplest production deployment of n8n you'll ever use — with automatic HTTPS, PostgreSQL (pgvector-ready), and a clean Docker stack.
+
+No configs. No SSL pain. No DevOps complexity.
+
+**Clone → edit 3 values in `.env` → run → your n8n is live.**
+
 
 ---
 
 ## 📖 Overview
 
-This repo gives you a minimal, repeatable way to run **n8n** in production using Docker Compose, automatic HTTPS via Caddy, and PostgreSQL (pgvector-ready).  
-The goal: **clone → edit three values in `.env` → run one command → done**.
+A simple and powerful n8n hosting kit designed for automation engineers, freelancers, and indie builders who want their own secure n8n server without DevOps pain.
+
+Automatic HTTPS, PostgreSQL + pgvector, and a clean Docker setup — all configured for you.
+
+**Clone → update `.env` → run — your n8n server is online.**
 
 ---
 
@@ -45,7 +53,7 @@ nano .env
 
 Update ONLY these:
 ```bash
-DOMAIN_NAME=example.duckdns.org
+DOMAIN_NAME=example.yourdomain.com
 N8N_ENCRYPTION_KEY=your_secret_encryption_key_here
 POSTGRES_PASSWORD=supersecurepassword
 ```
