@@ -90,7 +90,7 @@ If both work, you're good.
 Instead of doing everything manually, just run:
 
 ```bash
-sudo ./install_docker_minimal.sh
+sudo bash install_docker_minimal.sh
 ```
 
 This script automatically:
