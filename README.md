@@ -51,24 +51,16 @@ Open `.env`:
 nano .env
 ```
 
-USE THIS 
-```bash
-# --- Domain Settings ---
-DOMAIN_NAME=n8n.example.com
+---
 
-# --- General Settings ---
-GENERIC_TIMEZONE=Asia/Kolkata
+## ⚙️ Configuration Summary
 
-# --- Security (Required) ---
-# Generate a random string for this!
-N8N_ENCRYPTION_KEY=any_random_string
-
-# --- Database Secrets ---
-POSTGRES_USER=n8n
-POSTGRES_PASSWORD=change_this_password
-POSTGRES_DB=n8n
-
-```
+| Variable | Required | Description |
+|---------|----------|-------------|
+| `DOMAIN_NAME` | ✅ | Your domain |
+| `N8N_ENCRYPTION_KEY` | ✅ | Critical encryption key |
+| `POSTGRES_PASSWORD` | ✅ | DB password |
+| `GENERIC_TIMEZONE` | optional | Default timezone |
 
 ---
 
@@ -151,17 +143,6 @@ https://<YOUR_DOMAIN_NAME>
 ```
 
 Caddy will automatically issue certificates and handle HTTPS.
-
----
-
-## ⚙️ Configuration Summary
-
-| Variable | Required | Description |
-|---------|----------|-------------|
-| `DOMAIN_NAME` | ✅ | Your domain |
-| `N8N_ENCRYPTION_KEY` | ✅ | Critical encryption key |
-| `POSTGRES_PASSWORD` | ✅ | DB password |
-| `GENERIC_TIMEZONE` | optional | Default timezone |
 
 ---
 
