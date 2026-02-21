@@ -96,7 +96,10 @@ set -e
 
 if [ "$RET" -eq 0 ]; then
   echo
-  echo "✅ Docker is running correctly. You can now run 'docker compose up -d' in your project."
+  echo "✅ Docker is running correctly. Starting Your Container... running 'docker compose up -d' in your project."
+  docker compose up -d
+  echo "You are all Set! Access n8n at http://localhost:5678 or https://example.yourdomain.com (if set your subdomain)"
+
   exit 0
 else
   echo
@@ -107,3 +110,19 @@ else
   echo " - if using a non-systemd distro, ensure dockerd is running"
   exit $RET
 fi
+
+# 3) Ensure docker group & permissions
+echo
+echo "Ensuring docker group and adding user '$REQUIRED_USER' to it (if not already)."
+if ! getent group docker >/dev/null; then
+  groupadd docker || true
+fi
+
+if id -nG "$REQUIRED_USER" | grep -qw docker; then
+  echo "User $REQUIRED_USER is already in docker group."
+else
+  usermod -aG docker "$REQUIRED_USER"
+  newgrp docker
+  echo "Added $REQUIRED_USER to docker group. Please log out and back in (or run 'newgrp docker') to apply."
+fi
+
